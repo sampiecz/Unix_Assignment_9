@@ -73,15 +73,50 @@ void processClientRequest( int connSock) {
     }
 
     cout << "Command: " << command << endl;
+    // if command is get
+    if (command == "GET")
+    {
+        // start a more in depth if else ladder
+        if (pathname == "/")
+        {
+            int rs;
+
+            // do execvp or execlp for ls
+            rs = execl("/bin/ls", "ls .", (char *)NULL); 
+            cout << rs << endl;
+        }
+        else
+        {
+            int rs;
+
+            // do execvp or execlp for ls
+            rs = execl("/bin/ls", "ls .", (char *)NULL); 
+            cout << rs << endl;
+
+        }
+    }
+    // otherwise if it's info
+    else if (command == "INFO")
+    {
+        // Do the date time stuff
+    }
+    // else what are you doing
+    else
+    {
+        // output an error
+    }
+
     cout << "Path: " << pathname << endl;
 
     ///////////////////////////////////////////////////////////////////
 		
 	// write the message back to client 
-	if (write(connSock, buffer, received) < 0) {
+	if (write(connSock, buffer, received) < 0)
+    {
 		perror("write");
 		exit(EXIT_FAILURE);
 	}
+
 	close(connSock);
 	exit(EXIT_SUCCESS);
 }
