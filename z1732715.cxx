@@ -43,6 +43,7 @@ void processClientRequest( int connSock) {
     // If we have one / it needs to call "ls" from execvp or execlp whatever
 
     string command, pathname;
+    char* pathname2[] = {(char*)0, (char *)NULL};
 
     // Split buffer into pch pointer to char
     char * pch;
@@ -61,9 +62,10 @@ void processClientRequest( int connSock) {
         {
             command = pch;
         }
-        else
+        else if (count == 1)
         {
             pathname = pch;
+            pathname2[0] = pch;
         }
 
         // Reset pch
@@ -73,12 +75,15 @@ void processClientRequest( int connSock) {
     }
 
     cout << "Command: " << command << endl;
+    cout << "Pathname: " << pathname << endl;
     // if command is get
     if (command == "GET")
     {
         // start a more in depth if else ladder
         if (pathname == "/")
         {
+            cout << "Part 1" << endl;
+
             int rs;
 
             // do execvp or execlp for ls
@@ -87,12 +92,19 @@ void processClientRequest( int connSock) {
         }
         else
         {
-            int rs;
+            cout << "Part 2" << endl;
+            cout << "Pathname2: " << *pathname2 << endl;
 
+            int ns;
             // do execvp or execlp for ls
-            rs = execl("/bin/ls", "ls .", (char *)NULL); 
-            cout << rs << endl;
+            ns = execl("/bin/ls", "ls", *pathname2);
+            //cout << ns << endl;
 
+            if (ns == -1)
+            {
+              perror(*pathname2);
+              exit(EXIT_FAILURE); 
+            }
         }
     }
     // otherwise if it's info
@@ -105,8 +117,6 @@ void processClientRequest( int connSock) {
     {
         // output an error
     }
-
-    cout << "Path: " << pathname << endl;
 
     ///////////////////////////////////////////////////////////////////
 		
