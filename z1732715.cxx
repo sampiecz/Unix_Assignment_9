@@ -19,6 +19,7 @@
 
 #include <string>
 #include <algorithm>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -81,20 +82,29 @@ void processClientRequest( int connSock) {
         // start a more in depth if else ladder
         if (pathname == "/")
         {
-            cout << "Part 1" << endl;
-
             int rs;
-
             // do execvp or execlp for ls
             rs = execl("/bin/ls", "/bin/ls", (char *)NULL); 
             cout << rs << endl;
         }
         else
         {
-            pathname.erase(pathname.begin()+0);
-            int ns;
-            ns = execl("/bin/ls", "/bin/ls", pathname.c_str(), (char *)NULL);
-            cout << ns << endl;
+            struct stat buffer;
+
+            if (stat (pathname.c_str(), &buffer) == 0)
+            {
+                pathname.erase(pathname.begin()+0);
+                int print_file;
+                print_file = execl("/bin/cat", "/bin/cat", pathname.c_str(), (char *)NULL);
+                cout << print_file << endl;
+            }
+            else
+            {
+                pathname.erase(pathname.begin()+0);
+                int ns;
+                ns = execl("/bin/ls", "/bin/ls", pathname.c_str(), (char *)NULL);
+                cout << ns << endl;
+            }
         }
     }
     // otherwise if it's info
