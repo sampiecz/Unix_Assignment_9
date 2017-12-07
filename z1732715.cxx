@@ -20,6 +20,7 @@
 #include <string>
 #include <algorithm>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -74,43 +75,59 @@ void processClientRequest( int connSock) {
         count++;
     }
 
-    cout << "Command: " << command << endl;
-    cout << "Pathname: " << pathname << endl;
     // if command is get
     if (command == "GET")
     {
-        // start a more in depth if else ladder
+        // make variables for checking if file or dir
+        struct stat s;
+
+        // if this is just a slash 
         if (pathname == "/")
         {
+            cout << "Part 1" << endl;
+
             int rs;
+
             // do execvp or execlp for ls
             rs = execl("/bin/ls", "/bin/ls", (char *)NULL); 
             cout << rs << endl;
         }
-        else
+        // if the command is not just a slash
+        else if ( stat(pathname.c_str(), &s) == 0) 
         {
-            struct stat buffer;
+            cout << "Part 2" << endl;
 
-            if (stat (pathname.c_str(), &buffer) == 0)
+            // if the command is a file
+            if ( s.st_mode & S_IFDIR)
             {
+                // it's a file
+                cout << "Is dir block" << endl;
                 pathname.erase(pathname.begin()+0);
                 int print_file;
                 print_file = execl("/bin/cat", "/bin/cat", pathname.c_str(), (char *)NULL);
                 cout << print_file << endl;
-            }
-            else
+            }    
+            else if ( s.st_mode & S_IFREG)
             {
+                // it's a directory
                 pathname.erase(pathname.begin()+0);
                 int ns;
                 ns = execl("/bin/ls", "/bin/ls", pathname.c_str(), (char *)NULL);
                 cout << ns << endl;
+                cout << stat(pathname.c_str(),&s) << endl; 
+            }
+            else
+            {
+                // it is neither
             }
         }
     }
     // otherwise if it's info
     else if (command == "INFO")
     {
-        // Do the date time stuff
+        int dateTime;
+        dateTime = execl("/bin/date", "/bin/date", (char *)NULL);
+        cout << dateTime << endl;
     }
     // else what are you doing
     else
