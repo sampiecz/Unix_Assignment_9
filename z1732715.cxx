@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <typeinfo>
 
 using namespace std;
 
@@ -78,6 +79,12 @@ void processClientRequest( int connSock) {
     {
         // make variables for checking if file or dir
         struct stat s;
+        
+                    
+        if (pathname.at(0) == '/' && pathname.size() > 1 )
+        {
+            pathname.erase(pathname.begin()+0);    
+        }
 
         // if this is just a slash 
         if (pathname == "/")
@@ -89,7 +96,7 @@ void processClientRequest( int connSock) {
         }
         else if ( stat(pathname.c_str(), &s) == 0 ) 
         {
-            
+           
             // if the command is a file
             if ( s.st_mode & S_IFDIR)
             {
@@ -101,10 +108,19 @@ void processClientRequest( int connSock) {
             }    
             else if ( s.st_mode & S_IFREG )
             {
-                // it's a file
-                int print_file;
-                print_file = execl("/bin/cat", "/bin/cat", pathname.c_str(), (char *)NULL);
-                cout << print_file << endl;
+
+                if (pathname.substr(pathname.size()-2) == "..")
+                {
+                    cerr << "No .. pls." << endl;
+                    exit(-1);
+                }
+                else
+                {
+                    // it's a file
+                    int print_file;
+                    print_file = execl("/bin/cat", "/bin/cat", pathname.c_str(), (char *)NULL);
+                    cout << print_file << endl;
+                }
             }
             else
             {
