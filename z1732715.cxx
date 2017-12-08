@@ -6,21 +6,19 @@
 ////
 //// PURPOSE:     Make a forking TCP Server. 
 ////********************************************************************
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <netinet/in.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-
 #include <string>
 #include <algorithm>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -84,42 +82,38 @@ void processClientRequest( int connSock) {
         // if this is just a slash 
         if (pathname == "/")
         {
-            cout << "Part 1" << endl;
-
             int rs;
-
             // do execvp or execlp for ls
             rs = execl("/bin/ls", "/bin/ls", (char *)NULL); 
             cout << rs << endl;
         }
-        // if the command is not just a slash
-        else if ( stat(pathname.c_str(), &s) == 0) 
+        else if ( stat(pathname.c_str(), &s) == 0 ) 
         {
-            cout << "Part 2" << endl;
-
+            
             // if the command is a file
             if ( s.st_mode & S_IFDIR)
             {
-                // it's a file
-                cout << "Is dir block" << endl;
-                pathname.erase(pathname.begin()+0);
-                int print_file;
-                print_file = execl("/bin/cat", "/bin/cat", pathname.c_str(), (char *)NULL);
-                cout << print_file << endl;
-            }    
-            else if ( s.st_mode & S_IFREG)
-            {
                 // it's a directory
-                pathname.erase(pathname.begin()+0);
                 int ns;
                 ns = execl("/bin/ls", "/bin/ls", pathname.c_str(), (char *)NULL);
                 cout << ns << endl;
                 cout << stat(pathname.c_str(),&s) << endl; 
+            }    
+            else if ( s.st_mode & S_IFREG )
+            {
+                // it's a file
+                int print_file;
+                print_file = execl("/bin/cat", "/bin/cat", pathname.c_str(), (char *)NULL);
+                cout << print_file << endl;
             }
             else
             {
                 // it is neither
+                // This is where the error would go??? 
             }
+        }
+        else
+        {
         }
     }
     // otherwise if it's info
